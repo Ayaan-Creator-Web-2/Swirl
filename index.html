@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌀 SWIRL 🌀</title>
+    <title>Galxy</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #000;
             color: #fff;
             min-height: 100vh;
             position: relative;
@@ -39,7 +39,7 @@
 
         .sidebar {
             width: 250px;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(20, 20, 20, 0.9);
             padding: 20px;
             position: fixed;
             top: 0;
@@ -103,6 +103,8 @@
             border: none;
             border-radius: 5px;
             flex: 1;
+            background: rgba(40, 40, 40, 0.7);
+            color: #fff;
         }
 
         .link-form button {
@@ -129,7 +131,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(40, 40, 40, 0.7);
             padding: 10px;
             border-radius: 5px;
         }
@@ -138,6 +140,12 @@
             color: #fff;
             text-decoration: none;
             flex: 1;
+        }
+
+        .click-counter {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-right: 10px;
         }
 
         .link-item button {
@@ -158,6 +166,7 @@
             background: #ff6b81;
         }
 
+        /* Light mode styles */
         body.light-mode {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             color: #333;
@@ -181,6 +190,15 @@
             color: #333;
         }
 
+        body.light-mode .click-counter {
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        body.light-mode .link-form input {
+            background: rgba(255, 255, 255, 0.7);
+            color: #333;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -195,10 +213,10 @@
     </style>
 </head>
 <body>
-    <div class="theme-toggle" id="theme-toggle-btn">🌙</div>
+    <div class="theme-toggle" id="theme-toggle-btn">☀️</div>
     <div class="container">
         <nav class="sidebar">
-            <h1>🌀 SWIRL 🌀</h1>
+            <h1>Galxy</h1>
             <ul>
                 <li><a href="#" data-section="Home" class="active">Home</a></li>
                 <li><a href="#" data-section="Proxies">Proxies</a></li>
@@ -208,7 +226,7 @@
         </nav>
         <main class="content">
             <div id="Home" class="section active">
-                <h2>Welcome to SWIRL!</h2>
+                <h2>Welcome to Galxy!</h2>
                 <p>Organize and access your favorite links in one place.</p>
             </div>
             <div id="Proxies" class="section">
@@ -282,7 +300,8 @@
                     const linkElement = document.createElement("div");
                     linkElement.className = "link-item";
                     linkElement.innerHTML = `
-                        <a href="${link.url}" target="_blank">${link.name}</a>
+                        <a href="${link.url}" target="_blank" onclick="window.trackLinkClick('${section}', ${index})">${link.name}</a>
+                        <span class="click-counter">${link.clicks || 0} clicks</span>
                         <button onclick="window.deleteLink('${section}', ${index})">×</button>
                         <button onclick="window.copyLink('${link.url}')">📋</button>
                     `;
@@ -307,7 +326,7 @@
                     Other: []
                 };
 
-                data[section].push({ name, url });
+                data[section].push({ name, url, clicks: 0 });
 
                 localStorage.setItem('swirlLinks', JSON.stringify(data));
 
@@ -341,6 +360,20 @@
                 });
             };
 
+            window.trackLinkClick = function(section, index) {
+                const data = JSON.parse(localStorage.getItem('swirlLinks')) || {
+                    Proxies: [],
+                    Games: [],
+                    Other: []
+                };
+
+                if (data[section] && data[section][index]) {
+                    data[section][index].clicks = (data[section][index].clicks || 0) + 1;
+                    localStorage.setItem('swirlLinks', JSON.stringify(data));
+                    loadLinks();
+                }
+            };
+
             navLinks.forEach(link => {
                 link.addEventListener("click", (e) => {
                     e.preventDefault();
@@ -360,12 +393,12 @@
                 document.body.classList.toggle('light-mode');
                 const isLightMode = document.body.classList.contains('light-mode');
                 localStorage.setItem('swirlTheme', isLightMode ? 'light' : 'dark');
-                themeToggleBtn.textContent = isLightMode ? '☀️' : '🌙';
+                themeToggleBtn.textContent = isLightMode ? '🌙' : '☀️';
             });
 
             if (localStorage.getItem('swirlTheme') === 'light') {
                 document.body.classList.add('light-mode');
-                themeToggleBtn.textContent = '☀️';
+                themeToggleBtn.textContent = '🌙';
             }
 
             loadLinks();
