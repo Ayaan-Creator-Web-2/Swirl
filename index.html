@@ -132,7 +132,7 @@
 
             window.handlePurchase = function(index) {
                 const item = HARDCODED_STORE[index];
-                const pw = prompt("Go to Ayaan Khalique and ask him to enter password. You must pay him before purchasing." + item.name + ":");
+                const pw = prompt("Go to Ayaan Khalique and ask him to enter password. You must pay him before purchasing " + item.name + ":");
                 processUnlock(item, pw, true);
             };
 
