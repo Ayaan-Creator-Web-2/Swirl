@@ -31,6 +31,7 @@
         .click-counter { font-size: 0.8em; color: rgba(255, 255, 255, 0.7); margin-right: 10px; }
         .link-item button { background: #ff4757; color: #fff; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 10px; }
         .buy-btn { background: #667eea !important; border-radius: 5px !important; width: auto !important; height: auto !important; padding: 5px 15px !important; }
+        .own-btn { background: #57606f !important; border-radius: 5px !important; width: auto !important; height: auto !important; padding: 5px 15px !important; }
         body.light-mode { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); color: #333; }
         body.light-mode .sidebar { background: rgba(255, 255, 255, 0.8); color: #333; }
         body.light-mode .sidebar a { color: #333; }
@@ -118,30 +119,55 @@
                     if (purchased.includes(item.name)) return;
                     const itemEl = document.createElement("div");
                     itemEl.className = "link-item";
-                    itemEl.innerHTML = `<span>${item.name}</span><div class="price-container"><span class="price-tag">${item.price}</span><button class="buy-btn" onclick="handlePurchase(${index})">Buy</button></div>`;
+                    itemEl.innerHTML = `
+                        <span>${item.name}</span>
+                        <div class="price-container">
+                            <span class="price-tag">${item.price}</span>
+                            <button class="own-btn" onclick="handleOwn(${index})">I already own this</button>
+                            <button class="buy-btn" onclick="handlePurchase(${index})">Buy</button>
+                        </div>`;
                     storeContainer.appendChild(itemEl);
                 });
             }
 
             window.handlePurchase = function(index) {
                 const item = HARDCODED_STORE[index];
-                if (!item.url) { alert("No link associated with this item yet."); return; }
                 const pw = prompt("Go to Ayaan Khalique and ask him to enter password. You must pay him before purchasing." + item.name + ":");
-                if (pw === '31Litbro=me1') {
-                    const purchased = JSON.parse(localStorage.getItem('purchasedItems')) || [];
-                    purchased.push(item.name);
-                    localStorage.setItem('purchasedItems', JSON.stringify(purchased));
-                    const data = JSON.parse(localStorage.getItem('swirlLinks')) || { Proxies: [], Games: [], Other: [] };
-                    data.Proxies.push({ name: item.name, url: item.url, clicks: 0 });
-                    localStorage.setItem('swirlLinks', JSON.stringify(data));
-                    renderStore();
-                    loadLinks();
-                    alert(item.name + " added to your Proxies!");
-                } else if (pw !== null) { alert("Incorrect password."); }
+                processUnlock(item, pw, true);
             };
 
+            window.handleOwn = function(index) {
+                const item = HARDCODED_STORE[index];
+                const pw = prompt("Enter password to verify ownership of " + item.name + ":");
+                processUnlock(item, pw, false);
+            }
+
+            function processUnlock(item, pw, shouldAddToList) {
+                if (pw === '31Litbro=me1') {
+                    const purchased = JSON.parse(localStorage.getItem('purchasedItems')) || [];
+                    if (!purchased.includes(item.name)) {
+                        purchased.push(item.name);
+                        localStorage.setItem('purchasedItems', JSON.stringify(purchased));
+                        
+                        if (shouldAddToList) {
+                            const data = JSON.parse(localStorage.getItem('swirlLinks')) || { Proxies: [], Games: [], Other: [] };
+                            data.Proxies.push({ name: item.name, url: item.url, clicks: 0 });
+                            localStorage.setItem('swirlLinks', JSON.stringify(data));
+                            alert(item.name + " unlocked and added to Proxies!");
+                        } else {
+                            alert(item.name + " removed from store.");
+                        }
+                        
+                        renderStore();
+                        loadLinks();
+                    }
+                } else if (pw !== null) { 
+                    alert("Incorrect password."); 
+                }
+            }
+
             document.getElementById("reset-account").onclick = () => {
-                if(confirm("Are you sure? This will remove all your saved links and reset your store purchases. Your theme settings will stay.")) {
+                if(confirm("Are you sure? This will remove all your saved links and reset your store purchases.")) {
                     localStorage.setItem('swirlLinks', JSON.stringify({ Proxies: [], Games: [], Other: [] }));
                     localStorage.setItem('purchasedItems', JSON.stringify([]));
                     renderStore();
