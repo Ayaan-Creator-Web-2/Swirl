@@ -97,15 +97,16 @@
     </div>
     <script>
         const HARDCODED_STORE = [
-    { name: "A Small World Cup", category: "Games", price: "$1", url: "https://asmall-worldcup.github.io" },
-    { name: "dogehub", category: "Proxies", price: "$2", url: "https://deltamath.interdoge.cfd.cdn.cloudflare.net/" },
-    { name: "suntree", category: "Proxies", price: "$2", url: "https://ixl.math.nwpa.com.au" },
-    { name: "petezah", category: "Proxies", price: "$3", url: "https://nice.kubota-lab.com" },
-    { name: "Space", category: "Proxies", price: "$3", url: "https://planets.is-a.software.cdn.cloudflare.net" },
-    { name: "Interstellar", category: "Proxies", price: "$4", url: "https://welove.vcsa.eleomedio-coach.hu/" },
-    { name: "TGLSC Destiny 4", category: "Games", price: "$4", url: "https://tglsceducation.nanobit.org/g/" },
-	{ name: "NautilusOS", category: "Proxies", price: "$10", url: "https://unpkg.com/raim-math-work@1.0.18/index.html" },
-];
+            { name: "A Small World Cup", category: "Games", price: "$1", url: "https://asmall-worldcup.github.io" },
+            { name: "dogehub", category: "Proxies", price: "$2", url: "https://deltamath.interdoge.cfd.cdn.cloudflare.net/" },
+            { name: "suntree", category: "Proxies", price: "$2", url: "https://ixl.math.nwpa.com.au" },
+            { name: "petezah", category: "Proxies", price: "$3", url: "https://nice.kubota-lab.com" },
+            { name: "Space", category: "Proxies", price: "$3", url: "https://planets.is-a.software.cdn.cloudflare.net" },
+            { name: "Interstellar", category: "Proxies", price: "$4", url: "https://welove.vcsa.eleomedio-coach.hu/" },
+            { name: "TGLSC Destiny 4", category: "Games", price: "$4", url: "https://tglsceducation.nanobit.org/g/" },
+			{ name: "NautilusOS", category: "Proxies", price: "$10", url: "https://unpkg.com/raim-math-work@1.0.18/index.html" },
+            { name: "Hotdog - Proxies and Games", category: "Other", price: "$10", url: "https://sites.google.com/view/hotdogmangoscar"},
+        ];
 
         document.addEventListener("DOMContentLoaded", () => {
             const sections = document.querySelectorAll(".section");
@@ -141,36 +142,40 @@
             window.handlePurchase = function(index) {
                 const item = HARDCODED_STORE[index];
                 const pw = prompt("Go to Ayaan Khalique and ask him for the password. Pay before purchasing: " + item.name);
-                processUnlock(item, pw, true);
+                processUnlock(item, pw);
             };
 
             window.handleOwn = function(index) {
                 const item = HARDCODED_STORE[index];
                 const pw = prompt("Enter password to verify ownership of " + item.name + ":");
-                processUnlock(item, pw, false);
+                processUnlock(item, pw);
             }
 
-            function processUnlock(item, pw, shouldAddToList) {
+            function processUnlock(item, pw) {
                 if (pw === '31Litbro=me1') {
                     const purchased = JSON.parse(localStorage.getItem('purchasedItems')) || [];
+                    const data = JSON.parse(localStorage.getItem('swirlLinks')) || { Proxies: [], Games: [], Other: [] };
+                    
                     if (!purchased.includes(item.name)) {
                         purchased.push(item.name);
                         localStorage.setItem('purchasedItems', JSON.stringify(purchased));
-                        
-                        if (shouldAddToList) {
-                            const data = JSON.parse(localStorage.getItem('swirlLinks')) || { Proxies: [], Games: [], Other: [] };
-                            const targetCat = item.category;
-                            data[targetCat].push({ name: item.name, url: item.url, clicks: 0 });
-                            localStorage.setItem('swirlLinks', JSON.stringify(data));
-                            alert(item.name + " added to " + targetCat + "!");
-                        } else {
-                            alert(item.name + " removed from store.");
-                        }
-                        renderStore();
-                        loadLinks();
                     }
-                } else if (pw !== null) { 
-                    alert("Incorrect password."); 
+
+                    const targetCat = item.category;
+                    const alreadyInList = data[targetCat].some(link => link.name === item.name);
+
+                    if (!alreadyInList) {
+                        data[targetCat].push({ name: item.name, url: item.url, clicks: 0 });
+                        localStorage.setItem('swirlLinks', JSON.stringify(data));
+                        alert(item.name + " added to your " + targetCat + " list!");
+                    } else {
+                        alert(item.name + " is already in your " + targetCat + " list.");
+                    }
+
+                    renderStore();
+                    loadLinks();
+                } else if (pw !== null) {
+                    alert("Incorrect password.");
                 }
             }
 
